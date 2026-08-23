@@ -121,7 +121,6 @@
     <h2 style="margin: 0 0 5px; color: var(--secondary);">¡Hola de nuevo!</h2>
     <input type="text" id="logUser" placeholder="Usuario" style="margin: 20px 0 10px;">
     <input type="password" id="logPass" placeholder="Contraseña">
-    <!-- El boton usa type="button" para no recargar jamas la app -->
     <button type="button" class="btn-main btn-primary" id="btnLogin" onclick="hacerLogin()">
       <i class="fa-solid fa-right-to-bracket"></i> INGRESAR
     </button>
@@ -145,7 +144,19 @@
             <h4 style="margin:0 0 10px 0; color:var(--success);">Resumen de Productos</h4>
             <div id="repVentasResumen" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:10px; font-size:14px;"></div>
             <hr style="border:1px dashed #10B981; margin:10px 0;">
-            <strong style="color:var(--secondary)">Total Unidades: <span id="repVentasTotalUnidades">0</span></strong>
+            
+            <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; align-items:center;">
+              <strong style="color:var(--secondary)">Total Unidades: <span id="repVentasTotalUnidades">0</span></strong>
+              <div style="font-size:14px; background:white; padding:8px 15px; border-radius:10px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+                <span style="color:#10B981; font-weight:bold;"><i class="fa-solid fa-money-bill-wave"></i> Efec: <span id="repVentasTotEfe">$0</span></span> &nbsp;|&nbsp; 
+                <span style="color:#3B82F6; font-weight:bold;"><i class="fa-solid fa-credit-card"></i> Tarj: <span id="repVentasTotTar">$0</span></span> &nbsp;|&nbsp; 
+                <span style="color:#8B5CF6; font-weight:bold;"><i class="fa-solid fa-qrcode"></i> QR: <span id="repVentasTotQR">$0</span></span>
+              </div>
+            </div>
+            <div style="text-align:right; margin-top:10px;">
+              <strong style="font-size:18px; color:var(--secondary)">TOTAL FACTURADO: <span id="repVentasTotGral" style="color:var(--success)">$0</span></strong>
+            </div>
+
         </div>
         <h4 style="margin:0 0 10px 0; color:var(--secondary);">Detalle de Operaciones</h4>
         <div id="repVentasLista" style="max-height: 40vh; overflow-y: auto;"></div>
@@ -221,7 +232,7 @@
   <div class="header">
     <div>
       <img src="https://i.postimg.cc/W4Y09TTh/IMG-20260809-WA0061.jpg" alt="Logo">
-      <div style="font-size: 11px; color: var(--text-light); font-weight: 700; margin-top: 2px;">APP v2.3.1.3</div>
+      <div style="font-size: 11px; color: var(--text-light); font-weight: 700; margin-top: 2px;">APP v2.3.1.6</div>
     </div>
     <div class="user-badge" onclick="cerrarSesion()">
       <i class="fa-solid fa-circle-user" style="color: var(--primary); font-size: 20px;"></i>
@@ -279,7 +290,6 @@
         <button type="button" class="btn-main btn-success" id="btnGuardarCierre" onclick="procesarCierreYWhatsApp()"><i class="fa-solid fa-check-double"></i> GUARDAR CIERRE DIARIO</button>
       </div>
 
-      <!-- BOTON DE HISTORIAL (SOLO ADMIN) -->
       <div class="card nav-admin" style="text-align: center;">
         <h4 style="color:var(--secondary); margin-top:0;">Opciones de Administrador</h4>
         <button type="button" class="btn-main" style="background:var(--secondary); margin:0;" onclick="nav('cierres', null); cargarHistorialCierres();">
@@ -308,7 +318,7 @@
         <select id="movMedio"><option value="Efectivo">Efectivo Caja (Resta de la caja)</option><option value="Virtual">Virtual / Banco</option><option value="A Cuenta">Anotación a Cuenta / Bolsillo</option></select>
         <label>Detalle</label><input type="text" id="movObs" placeholder="Ej: Retiro para panadería">
         <button type="button" class="btn-main btn-primary" id="btnGasto" onclick="guardarMovimiento()">REGISTRAR OPERACIÓN</button>
-        <button type="button" class="btn-main" style="background:var(--secondary); margin-top:25px;" onclick="cargarHistorialMovimientos()" id="btnVerHistorial"><i class="fa-solid fa-list-check"></i> VER REGISTROS DE OPERACIONES</button>
+        <button type="button" class="btn-main" style="background:var(--secondary); margin:top:25px;" onclick="cargarHistorialMovimientos()" id="btnVerHistorial"><i class="fa-solid fa-list-check"></i> VER REGISTROS DE OPERACIONES</button>
         <div id="listaHistorialMovimientos" style="margin-top:15px; display:none;"></div>
       </div>
 
@@ -353,8 +363,45 @@
       </div>
     </div>
 
-    <!-- ⚙️ 5. ADMIN (USUARIOS Y EMPLEADOS) -->
+    <!-- ⚙️ 5. ADMIN (USUARIOS, EMPLEADOS Y PRODUCTOS) -->
     <div id="admin" class="seccion">
+      
+      <!-- NUEVO: GESTIÓN DE PRODUCTOS Y MENÚ -->
+      <div class="card">
+        <h3><i class="fa-solid fa-box"></i> Gestión del Menú</h3>
+        <input type="hidden" id="prodEditIdOrig">
+        
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+          <div style="flex:1;">
+            <label>ID / Jerarquía (Ej: 1.0, 1.1.1)</label>
+            <input type="text" id="adminProdId" placeholder="1.0">
+          </div>
+          <div style="flex:2;">
+            <label>Nombre / Categoría</label>
+            <input type="text" id="adminProdName" placeholder="Ej: Churros simples">
+          </div>
+        </div>
+        
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+          <div style="flex:1;">
+            <label>Precio ($0 si es categoría)</label>
+            <input type="number" id="adminProdPrice" placeholder="0">
+          </div>
+          <div style="flex:2;">
+            <label>Link de la Foto (Opcional)</label>
+            <input type="text" id="adminProdImg" placeholder="https://...">
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:20px;">
+          <button type="button" class="btn-main" style="background:gray; margin:0;" onclick="limpiarFormProd()">Limpiar</button>
+          <button type="button" class="btn-main btn-success" id="btnSaveProd" style="margin:0;" onclick="guardarProdCRUD()">Guardar Producto</button>
+        </div>
+
+        <label style="margin-top: 25px;">Lista del Menú Actual</label>
+        <div id="listaProductosAdmin" style="margin-top:10px; max-height: 400px; overflow-y: auto; background:#f9fafb; border:1px solid #eee; border-radius:12px; padding:10px;"></div>
+      </div>
+
       <div class="card">
         <h3><i class="fa-solid fa-users"></i> Gestión de Personal</h3>
         <input type="hidden" id="empEditId">
@@ -363,6 +410,7 @@
         <label style="margin-top: 25px;">Lista de Personal</label>
         <div id="listaEmpleados" style="margin-top:10px;"></div>
       </div>
+      
       <div class="card">
         <h3><i class="fa-solid fa-users-gear"></i> Accesos y Usuarios</h3>
         <input type="hidden" id="usrId">
@@ -390,7 +438,7 @@
 <script>
   // =================================================================================
   // LA URL DE GITHUB: PEGAR LA URL DE GOOGLE APPS SCRIPT ACÁ SI SE USA EN GITHUB
-  var API_URL = "https://script.google.com/macros/s/AKfycbydvJqXdOTTK8L5cysrbVjzYO4iXJoddBaC84TekUykj1HRxt1CvwdBetyFIAdgkUGJ6g/exec"; 
+  var API_URL = "https://script.google.com/macros/s/KfycbwTqZacNJMePe2NaG3UarKhiNCsMSZu5VKqKlE8B6l-wc7tjcwlCkhqQ3v5N5HGgwmtKQ/exec"; 
   // =================================================================================
 
   function callBackend(action, params, onSuccess, onFailure) {
@@ -403,24 +451,34 @@
         if(API_URL === "PEGAR_AQUI_LA_NUEVA_URL_DE_APPS_SCRIPT") {
             mostrarToast("Falta configurar la API_URL para usar desde GitHub."); return;
         }
-        params.action = action; // Agregamos accion de forma universal
+        params.action = action; 
         
-        fetch(API_URL, { 
-            method: 'POST', 
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify(params) 
-        })
-        .then(function(res) { return res.json(); })
-        .then(function(resData) {
-            if (!resData.success) {
-                if (onFailure) onFailure({message: resData.error}); else mostrarToast("Error: " + resData.error);
-            } else { if (onSuccess) onSuccess(resData.data); }
-        })
-        .catch(function(err) { if (onFailure) onFailure(err); else mostrarToast("Fallo de red al conectar."); });
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", API_URL, true);
+        xhr.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        var resData = JSON.parse(xhr.responseText);
+                        if (!resData.success) {
+                            if (onFailure) onFailure({message: resData.error}); else mostrarToast("Error: " + resData.error);
+                        } else { if (onSuccess) onSuccess(resData.data); }
+                    } catch(e) {
+                        if (onFailure) onFailure({message: "Error procesando servidor."}); else mostrarToast("Error interno.");
+                    }
+                } else {
+                    if (onFailure) onFailure({message: "Error " + xhr.status}); else mostrarToast("Fallo de red HTTP " + xhr.status);
+                }
+            }
+        };
+        xhr.onerror = function() {
+            if (onFailure) onFailure({message: "Error de Red"}); else mostrarToast("Fallo de conexión al servidor.");
+        };
+        xhr.send(JSON.stringify(params));
     }
   }
 
-  // --- AUTO LOGIN (MANTIENE LA SESION ABIERTA) ---
   window.onload = function() {
     try {
       var sUser = localStorage.getItem("pos_usrActual");
@@ -432,8 +490,11 @@
         document.getElementById("loginScreen").style.display = "none";
         document.getElementById("appScreen").style.display = "block";
         
-        var today = new Date(); var yyyy = today.getFullYear(); 
-        var mm = String(today.getMonth() + 1).padStart(2, '0'); var dd = String(today.getDate()).padStart(2, '0');
+        var today = new Date(); 
+        var yyyy = today.getFullYear(); 
+        var m_val = today.getMonth() + 1; var mm = m_val < 10 ? '0' + m_val : '' + m_val;
+        var d_val = today.getDate(); var dd = d_val < 10 ? '0' + d_val : '' + d_val;
+
         document.getElementById("cierreFecha").value = yyyy + '-' + mm + '-' + dd;
         document.getElementById("movFecha").value = ""; 
         
@@ -510,7 +571,8 @@
   function cerrarSesion() {
     usrActual = ""; rolActual = ""; 
     document.getElementById("logUser").value = ""; document.getElementById("logPass").value = "";
-    localStorage.removeItem("pos_usrActual"); localStorage.removeItem("pos_rolActual");
+    localStorage.removeItem("pos_usrActual"); 
+    localStorage.removeItem("pos_rolActual");
     document.getElementById("appScreen").style.display = "none"; document.getElementById("loginScreen").style.display = "flex";
     nav('ventas', document.querySelector('.nav-item')); reporteIACargado = false; mostrarToast("Sesión cerrada");
   }
@@ -531,7 +593,9 @@
           document.getElementById("loginScreen").style.display = "none"; document.getElementById("appScreen").style.display = "block";
           
           var today = new Date(); var yyyy = today.getFullYear(); 
-          var mm = String(today.getMonth() + 1).padStart(2, '0'); var dd = String(today.getDate()).padStart(2, '0');
+          var m_val = today.getMonth() + 1; var mm = m_val < 10 ? '0' + m_val : '' + m_val;
+          var d_val = today.getDate(); var dd = d_val < 10 ? '0' + d_val : '' + d_val;
+
           document.getElementById("cierreFecha").value = yyyy + '-' + mm + '-' + dd;
           document.getElementById("movFecha").value = ""; 
           
@@ -573,7 +637,92 @@
       }
       
       renderMenuPOS();
+      renderProductosAdmin(); // <-- NUEVO: Renderiza el menú en el panel admin
     });
+  }
+
+  // --- NUEVA GESTIÓN DE PRODUCTOS EN ADMIN ---
+  function limpiarFormProd() {
+    document.getElementById("prodEditIdOrig").value = "";
+    document.getElementById("adminProdId").value = "";
+    document.getElementById("adminProdName").value = "";
+    document.getElementById("adminProdPrice").value = "";
+    document.getElementById("adminProdImg").value = "";
+  }
+
+  function renderProductosAdmin() {
+    var html = "";
+    var prodsCopia = DB_Productos_Normalizado.slice();
+    prodsCopia.sort(function(a, b) {
+        var maxLen = Math.max(a.partes.length, b.partes.length);
+        for (var n=0; n<maxLen; n++) {
+            var numA = parseInt(a.partes[n]) || 0;
+            var numB = parseInt(b.partes[n]) || 0;
+            if (numA !== numB) return numA - numB;
+        }
+        return 0;
+    });
+
+    for(var i=0; i<prodsCopia.length; i++) {
+      var p = prodsCopia[i];
+      var esCat = p.precio === 0;
+      var color = esCat ? "var(--primary)" : "var(--secondary)";
+      var bold = esCat ? "800" : "500";
+      var idSafe = p.idNorm;
+      var nomSafe = p.nombre.replace(/'/g, "\\'");
+      var imgSafe = p.img ? p.img.replace(/'/g, "\\'") : "";
+
+      html += '<div class="data-row list-item">' +
+                 '<div style="flex:1;">' +
+                   '<strong style="color:'+color+'; font-weight:'+bold+'; font-size:15px;">[' + p.idNorm + '] ' + p.nombre + '</strong><br>' +
+                   '<span style="font-size:11px; color:gray;">' + (esCat ? 'Categoría' : 'Precio: $' + fmtNum(p.precio)) + '</span>' +
+                 '</div>' +
+                 '<div style="display:flex; gap:5px;">' +
+                   '<button type="button" class="action-btn edit" onclick="editarProdUI(\'' + idSafe + '\', \'' + nomSafe + '\', ' + p.precio + ', \'' + imgSafe + '\')"><i class="fa-solid fa-pen"></i></button>' +
+                   '<button type="button" class="action-btn del" onclick="borrarProd(\'' + idSafe + '\')"><i class="fa-solid fa-trash"></i></button>' +
+                 '</div>' +
+               '</div>';
+    } 
+    document.getElementById("listaProductosAdmin").innerHTML = html;
+  }
+
+  function editarProdUI(id, nom, precio, img) {
+    document.getElementById("prodEditIdOrig").value = id;
+    document.getElementById("adminProdId").value = id;
+    document.getElementById("adminProdName").value = nom;
+    document.getElementById("adminProdPrice").value = precio;
+    document.getElementById("adminProdImg").value = img;
+    document.getElementById("admin").scrollIntoView({behavior: "smooth"});
+  }
+
+  function guardarProdCRUD() {
+    var idOrig = document.getElementById("prodEditIdOrig").value;
+    var idNuevo = document.getElementById("adminProdId").value;
+    var nom = document.getElementById("adminProdName").value;
+    var precio = document.getElementById("adminProdPrice").value;
+    var img = document.getElementById("adminProdImg").value;
+    
+    if(!idNuevo || !nom) return mostrarToast("Completá el ID y el Nombre");
+    
+    btnEstado("btnSaveProd", true, "", "");
+    callBackend('guardarProducto', {idOrig: idOrig, idNuevo: idNuevo, nombre: nom, precio: precio, img: img}, function(res){
+        mostrarToast(res); 
+        limpiarFormProd();
+        btnEstado("btnSaveProd", false, "Guardar Producto", ""); 
+        cargarDatosBase();
+      }, function(err){
+        mostrarToast("Error: " + err.message); 
+        btnEstado("btnSaveProd", false, "Guardar Producto", "");
+      });
+  }
+
+  function borrarProd(id) { 
+    if(confirm("¿Borrar este producto/categoría?")) {
+      callBackend('eliminarProducto', {id: id}, function(res){ 
+        mostrarToast(res); 
+        cargarDatosBase(); 
+      }); 
+    }
   }
 
   function renderMenuPOS() {
@@ -783,8 +932,8 @@
       document.getElementById("modalReporteVentas").style.display = "flex";
       var today = new Date(); 
       var yyyy = today.getFullYear(); 
-      var mm = String(today.getMonth() + 1).padStart(2, '0'); 
-      var dd = String(today.getDate()).padStart(2, '0');
+      var m_val = today.getMonth() + 1; var mm = m_val < 10 ? '0' + m_val : '' + m_val;
+      var d_val = today.getDate(); var dd = d_val < 10 ? '0' + d_val : '' + d_val;
       var hoyStr = yyyy + '-' + mm + '-' + dd;
       
       document.getElementById("repVentasDesde").value = hoyStr;
@@ -814,6 +963,11 @@
           if(htmlResumen === "") htmlResumen = "<div>No hay ventas en este rango.</div>";
           document.getElementById("repVentasResumen").innerHTML = htmlResumen;
           document.getElementById("repVentasTotalUnidades").innerText = res.totalUnidades;
+          
+          document.getElementById("repVentasTotEfe").innerText = fmtNum(res.totalesMedio.Efectivo || 0);
+          document.getElementById("repVentasTotTar").innerText = fmtNum(res.totalesMedio.Tarjeta || 0);
+          document.getElementById("repVentasTotQR").innerText = fmtNum(res.totalesMedio.QR || 0);
+          document.getElementById("repVentasTotGral").innerText = "$" + fmtNum(res.totalesMedio.Total || 0);
           
           var htmlLista = "";
           if(res.ventas.length === 0) {
@@ -1047,14 +1201,16 @@
             mostrarToast(r); btnEstado("btnGuardarCierre", false, "GUARDAR CIERRE DIARIO", "fa-check-double"); return;
         }
         try {
-            fetch("https://api.open-meteo.com/v1/forecast?latitude=-34.81&longitude=-58.53&daily=temperature_2m_max,precipitation_sum&timezone=America/Argentina/Buenos_Aires")
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                var d = data.daily;
-                var climaObj = { tempM: Math.round(d.temperature_2m_max[1]), lluviaM: d.precipitation_sum[1], arrLluvias: (d.precipitation_sum[1]>1 || d.precipitation_sum[2]>1), arrCalor: (d.temperature_2m_max[1]>28 && d.temperature_2m_max[2]>28) };
-                armarYEnviarWspEnDosPartes(climaObj, fCustom);
-            })
-            .catch(function(err) { armarYEnviarWspEnDosPartes({ tempM: 20, lluviaM: 0, arrLluvias: false, arrCalor: false }, fCustom); });
+            if (typeof fetch !== 'undefined') {
+                fetch("https://api.open-meteo.com/v1/forecast?latitude=-34.81&longitude=-58.53&daily=temperature_2m_max,precipitation_sum&timezone=America/Argentina/Buenos_Aires")
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    var d = data.daily;
+                    var climaObj = { tempM: Math.round(d.temperature_2m_max[1]), lluviaM: d.precipitation_sum[1], arrLluvias: (d.precipitation_sum[1]>1 || d.precipitation_sum[2]>1), arrCalor: (d.temperature_2m_max[1]>28 && d.temperature_2m_max[2]>28) };
+                    armarYEnviarWspEnDosPartes(climaObj, fCustom);
+                })
+                .catch(function(err) { armarYEnviarWspEnDosPartes({ tempM: 20, lluviaM: 0, arrLluvias: false, arrCalor: false }, fCustom); });
+            } else { armarYEnviarWspEnDosPartes({ tempM: 20, lluviaM: 0, arrLluvias: false, arrCalor: false }, fCustom); }
         } catch(ex) { armarYEnviarWspEnDosPartes({ tempM: 20, lluviaM: 0, arrLluvias: false, arrCalor: false }, fCustom); }
     }, function(err) {
         mostrarToast("Error de servidor: " + err.message); btnEstado("btnGuardarCierre", false, "GUARDAR CIERRE DIARIO", "fa-check-double");
@@ -1075,9 +1231,20 @@
             var url1 = "https://api.callmebot.com/whatsapp.php?phone=" + phone + "&text=" + encodeURIComponent(mensaje1) + "&apikey=" + apikey;
             var url2 = "https://api.callmebot.com/whatsapp.php?phone=" + phone + "&text=" + encodeURIComponent(mensaje2) + "&apikey=" + apikey;
 
-            fetch(url1, {mode: 'no-cors'}).then(function() {
-                setTimeout(function() { fetch(url2, {mode: 'no-cors'}).then(function() { mostrarToast("¡Cierre guardado y WSP enviados! 📲"); finalizarCierreUI(); }).catch(function() { finalizarCierreUI(); }); }, 2500); 
-            }).catch(function() { mostrarToast("Guardado Ok. Error de red al enviar WSP."); finalizarCierreUI(); });
+            var xhr1 = new XMLHttpRequest();
+            xhr1.open("GET", url1, true);
+            xhr1.onload = function() {
+                setTimeout(function() { 
+                   var xhr2 = new XMLHttpRequest();
+                   xhr2.open("GET", url2, true);
+                   xhr2.onload = function() { mostrarToast("¡Cierre guardado y WSP enviados! 📲"); finalizarCierreUI(); };
+                   xhr2.onerror = function() { finalizarCierreUI(); };
+                   xhr2.send();
+                }, 2500); 
+            };
+            xhr1.onerror = function() { mostrarToast("Guardado Ok. Error de red al enviar WSP."); finalizarCierreUI(); };
+            xhr1.send();
+
         } catch(e) { mostrarToast("Cierre guardado. Error procesando IA."); finalizarCierreUI(); }
     }, function(err) {
         mostrarToast("Cierre guardado, pero falló el reporte: " + err.message); finalizarCierreUI();
@@ -1362,8 +1529,26 @@
     var aiText = document.getElementById("aiTextInline");
     if(aiText) aiText.innerText = "Conectando al servidor y procesando estado financiero...";
 
-    // Usando try/catch básico sin fetch para Open-Meteo, evitamos bloqueos extra en navegadores viejos.
-    pedirStatsBackend(null, fechaElegida);
+    try {
+        if (typeof fetch !== 'undefined') {
+            fetch("https://api.open-meteo.com/v1/forecast?latitude=-34.81&longitude=-58.53&daily=temperature_2m_max,precipitation_sum&timezone=America/Argentina/Buenos_Aires")
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                var d = data.daily;
+                var tM = Math.round(d.temperature_2m_max[1]); var pM = d.precipitation_sum[1];
+                var icon = (pM > 1) ? "fa-cloud-showers-heavy" : (tM < 15 ? "fa-snowflake" : (tM > 28 ? "fa-sun" : "fa-cloud-sun"));
+                var arrLluvias = (d.precipitation_sum[1]>1 || d.precipitation_sum[2]>1 || d.precipitation_sum[3]>1);
+                var arrCalor = (d.temperature_2m_max[1]>28 && d.temperature_2m_max[2]>28);
+                var climaObj = { tempM: tM, lluviaM: pM, icon: icon, arrLluvias: arrLluvias, arrCalor: arrCalor };
+                pedirStatsBackend(climaObj, fechaElegida);
+            })
+            .catch(function(err) { pedirStatsBackend({ tempM: 20, lluviaM: 0, icon: "fa-cloud-sun", arrLluvias: false, arrCalor: false }, fechaElegida); });
+        } else {
+            pedirStatsBackend({ tempM: 20, lluviaM: 0, icon: "fa-cloud-sun", arrLluvias: false, arrCalor: false }, fechaElegida);
+        }
+    } catch(e) {
+        pedirStatsBackend({ tempM: 20, lluviaM: 0, icon: "fa-cloud-sun", arrLluvias: false, arrCalor: false }, fechaElegida);
+    }
   }
 
   function pedirStatsBackend(climaObj, fechaElegida) {
